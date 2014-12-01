@@ -115,7 +115,7 @@ class User_Audio_Playlist_Public {
 		}
 
 		$html_atts = array( 'id' => sprintf( 'pl-add-audio-%d', $post_id),
-							'class'=> esc_attr($atts['pl-class']);
+							'class'=> esc_attr($atts['pl-class']));
 
 		$link_html = sprintf( '<div %s %s>%s</div>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pl-text'] );
 
