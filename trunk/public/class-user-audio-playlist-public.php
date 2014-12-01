@@ -104,20 +104,31 @@ class User_Audio_Playlist_Public {
 	*/
 	public function render_add_to_playlist_link( $html, $atts, $audio, $post_id, $library )
 	{
-		$defaults_atts = array(	'pl-text'=>"Add to playlist +",
-								'pl-class'=>'add-to-playlist');
+		$default_types = wp_get_audio_extensions();
+		$defaults_atts = array(
+			'src'      => '',
+			'pl-text'=>"Add to playlist +",
+			'pl-class'=>'add-to-playlist'
+		);
+		foreach ( $default_types as $type ) {
+			$defaults_atts[$type] = '';
+		}
 		$atts = shortcode_atts( $defaults_atts, $atts, 'audio' );
 
 
-		$data_atts = [];
-		foreach ($atts as $k => $v) {
+		$data = $data_atts = [];
+		foreach($atts as $k => $v)
+			if(!empty($v))
+				$data[$k] = $v;
+		$data['postid'] = $post_id;		
+		foreach ($data as $k => $v) {
 			$data_atts[] = 'data-'.$k . '="' . esc_attr( $v ) . '"';
 		}
 
-		$html_atts = array( 'id' => sprintf( 'pl-add-audio-%d', $post_id),
-							'class'=> esc_attr($atts['pl-class']));
+		$html_atts = array( 'id='.sprintf( 'pl-add-audio-%d', $post_id),
+							'class='.esc_attr($atts['pl-class']));
 
-		$link_html = sprintf( '<div %s %s>%s</div>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pl-text'] );
+		$link_html = sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pl-text'] );
 
 		return $html."<!-- Add to playlist -->".$link_html;
 	}
