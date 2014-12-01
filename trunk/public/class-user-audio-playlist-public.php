@@ -100,4 +100,10 @@ class User_Audio_Playlist_Public {
 
 	}
 
+
+	public function render_add_to_playlist_link( $html, $atts, $audio, $post_id, $library )
+	{
+		return $html."<!-- Add to playlist here -->";
+	}
+
 }

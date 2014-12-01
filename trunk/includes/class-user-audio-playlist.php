@@ -171,6 +171,10 @@ class User_Audio_Playlist {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		// add audio short code post processing
+		$this->loader->add_filter( 'wp_audio_shortcode', $plugin_public, 'render_add_to_playlist_link');
+
+
 	}
 
 	/**
