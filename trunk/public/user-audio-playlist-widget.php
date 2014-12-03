@@ -1,7 +1,13 @@
 <?php 
 
 /**
- * Adds User_Audio_Playlist_Widget widget.
+ * User_Audio_Playlist_Widget widget.
+ *
+ * Add special widget that displays user audio playlist
+ *
+ * @package    User_Audio_Playlist
+ * @subpackage User_Audio_Playlist/public
+ * @author     Mike Starov <mike.starov@gmail.com>
  */
 
 class User_Audio_Playlist_Widget extends WP_Widget {
