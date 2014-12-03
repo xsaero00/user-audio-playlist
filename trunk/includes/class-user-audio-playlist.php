@@ -68,7 +68,7 @@ class User_Audio_Playlist {
 	 */
 	public function __construct() {
 
-		$this->user_audio_playlist = 'user-audio-playlist';
+		$this->user_audio_playlist = 'user_audio_playlist';
 		$this->version = '1.0.0';
 
 		$this->load_dependencies();

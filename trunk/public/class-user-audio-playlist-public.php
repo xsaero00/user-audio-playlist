@@ -101,7 +101,7 @@ class User_Audio_Playlist_Public {
 
 		wp_enqueue_script( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'js/user-audio-playlist-public.js', array( 'jquery' ), $this->version, false );
 		// make some variables avaialble to JavaScript
-		wp_localize_script($this->user_audio_playlist, 'pl', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'link_selector' => '.'.$this->link_class)); 
+		wp_localize_script($this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'link_selector' => '.'.$this->link_class)); 
 
 	}
 
@@ -149,10 +149,14 @@ class User_Audio_Playlist_Public {
 	}
 
 	/**
-	*
+	* Add to playlist AJAX callback 
 	*/
 	public function ajax_add_to_playlist_callback()
 	{
+
+		// TODO: Move saving code to dedicated class
+		if(!isset($_SESSION[$this]))
+
 		wp_send_json_success();
 	}
 
