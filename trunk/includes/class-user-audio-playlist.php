@@ -177,6 +177,10 @@ class User_Audio_Playlist {
 		// register user playlist widget
 		$this->loader->add_action( 'widgets_init', $plugin_public, 'register_user_audio_playlist_widget' );
 
+		// add ajax action callback
+		$this->loader->add_action( 'wp_ajax_add_to_playlist', $plugin_public, 'ajax_add_to_playlist_callback');
+		$this->loader->add_action( 'wp_ajax_nopriv_add_to_playlist', $plugin_public, 'ajax_add_to_playlist_callback');
+
 
 
 

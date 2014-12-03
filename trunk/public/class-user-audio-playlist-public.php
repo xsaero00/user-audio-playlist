@@ -51,6 +51,9 @@ class User_Audio_Playlist_Public {
 
 		$this->user_audio_playlist = $user_audio_playlist;
 		$this->version = $version;
+		$this->link_class = 'add-to-playlist';
+		$this->link_text = __("Add to playlist +");
+		$this->add_action = 'add_to_playlist'; // add to playlist action
 
 	}
 
@@ -97,6 +100,8 @@ class User_Audio_Playlist_Public {
 		 */
 
 		wp_enqueue_script( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'js/user-audio-playlist-public.js', array( 'jquery' ), $this->version, false );
+		// make some variables avaialble to JavaScript
+		wp_localize_script($this->user_audio_playlist, 'pl', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'link_selector' => '.'.$this->link_class)); 
 
 	}
 
@@ -107,8 +112,9 @@ class User_Audio_Playlist_Public {
 		$default_types = wp_get_audio_extensions();
 		$defaults_atts = array(
 			'src'      => '',
-			'pl-text'=>"Add to playlist +",
-			'pl-class'=>'add-to-playlist'
+			'pl-text'=>$this->link_text,
+			'pl-class'=>$this->link_class,
+			'action'=>$this->add_action
 		);
 		foreach ( $default_types as $type ) {
 			$defaults_atts[$type] = '';
@@ -140,6 +146,14 @@ class User_Audio_Playlist_Public {
 	{
 		require_once plugin_dir_path( __FILE__  ) . 'user-audio-playlist-widget.php';
 		register_widget( 'User_Audio_Playlist_Widget' );
+	}
+
+	/**
+	*
+	*/
+	public function ajax_add_to_playlist_callback()
+	{
+		wp_send_json_success();
 	}
 
 }

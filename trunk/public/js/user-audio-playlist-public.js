@@ -29,4 +29,14 @@
 	 * be doing this, we should try to minimize doing that in our own work.
 	 */
 
+	$(function() {
+
+		$(pl.link_selector).on('click', function(){
+			$.post(pl.ajax_url, $(this).data(), function(data){
+				console.log('Received');
+				console.log(data);
+			}, 'json')
+		})
+	});
+
 })( jQuery );
