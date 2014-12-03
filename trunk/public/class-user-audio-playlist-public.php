@@ -202,10 +202,10 @@ class User_Audio_Playlist_Public {
 	{
 		if(!session_id())session_start();
 	}
+
 	/**
 	* Destroy the session, this removes any data saved in the session
 	*/
-
 	public function destroy_playlist_session()
 	{
 		session_destroy ();

@@ -37,7 +37,29 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ). $args['after_title'];
 		}
-		echo __( '<p>This is sample content</p>' );
+		// list all playlists here
+		$playlists = array();
+		if(isset($_SESSION['user_audio_playlist']))
+			$playlists = $_SESSION['user_audio_playlist'];
+
+		if(empty($playlists))
+			echo '<p>'.__("No playlists.").'</p>';
+		// iterate and display it 
+		foreach ($playlists as $slug => $list) {
+			echo "<div class='user_audio_playlist' id='playlist-".$slug."'>";
+			echo "<h4 class='user_audio_playlist-title'>".$list['title']."</h4>";
+			if(empty($list['items']))
+				echo "<p>".__('Playlist is empty.')."</p>";
+			else
+			{
+				echo "<ul>";
+				foreach ($list['items'] as $file) {
+					echo "<li>$file</li>";
+				}
+				echo "</ul>";
+			}
+			echo "<div/>";
+		}
 		echo $args['after_widget'];
 	}
 
