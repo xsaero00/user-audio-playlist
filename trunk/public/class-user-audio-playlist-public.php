@@ -53,6 +53,7 @@ class User_Audio_Playlist_Public {
 		$this->version = $version;
 		$this->link_class = 'add-to-playlist';
 		$this->link_text = __("Add to playlist +");
+		$this->default_playlist_title = __("My First Playlist");
 		$this->add_action = 'add_to_playlist'; // add to playlist action
 
 	}
@@ -112,9 +113,10 @@ class User_Audio_Playlist_Public {
 		$default_types = wp_get_audio_extensions();
 		$defaults_atts = array(
 			'src'      => '',
-			'pl-text'=>$this->link_text,
-			'pl-class'=>$this->link_class,
-			'action'=>$this->add_action
+			'pltext'=>$this->link_text,
+			'plclass'=>$this->link_class,
+			'pltitle'=>$this->default_playlist_title,
+			'action'=>$this->add_action, 			
 		);
 		foreach ( $default_types as $type ) {
 			$defaults_atts[$type] = '';
@@ -132,9 +134,9 @@ class User_Audio_Playlist_Public {
 		}
 
 		$html_atts = array( 'id='.sprintf( 'pl-add-audio-%d', $post_id),
-							'class='.esc_attr($atts['pl-class']));
+							'class='.esc_attr($atts['plclass']));
 
-		$link_html = sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pl-text'] );
+		$link_html = sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pltext'] );
 
 		return $html."<!-- Add to playlist -->".$link_html;
 	}
@@ -153,11 +155,59 @@ class User_Audio_Playlist_Public {
 	*/
 	public function ajax_add_to_playlist_callback()
 	{
+		if(empty($_POST))
+			wp_send_json_error();
 
 		// TODO: Move saving code to dedicated class
-		if(!isset($_SESSION[$this]))
+		if(!isset($_SESSION[$this->user_audio_playlist]))
+		 	$_SESSION[$this->user_audio_playlist] = [];
+		
+		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
+		$playlist_slug = sanitize_title( $playlist_title);
 
-		wp_send_json_success();
+		// get the item to add to playlist
+		$playlist_item = Null;
+        $default_types = wp_get_audio_extensions();
+        foreach ($default_types as $type) {
+        	if(isset($_POST[$type]) && !empty($_POST[$type]))
+        	{
+        		$playlist_item = $_POST[$type];
+        		break;
+        	}
+        }
+		
+		if(!$playlist_item)
+			wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"),$this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]) );
+
+		// initialize storage location if it has not been used yet
+		if (!isset($_SESSION[$this->user_audio_playlist][$playlist_slug]))
+			$_SESSION[$this->user_audio_playlist][$playlist_slug]=array('title'=>$playlist_title, 'items'=>array());
+
+		// check to make sure item has not been added already
+		if (in_array($playlist_item, $_SESSION[$this->user_audio_playlist][$playlist_slug]['items']))
+			wp_send_json_error(array('message' =>__("Could not add to playlist: This file is already added to this playlist!"),$this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]));
+
+		// if made it to here - add item
+		$_SESSION[$this->user_audio_playlist][$playlist_slug]['items'][] = $playlist_item;
+
+		
+		wp_send_json_success(array($this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]));
 	}
 
+
+	/**
+	*	Start session, after this call the PHP $_SESSION super global is available
+	*/
+	public function start_playlist_session()
+	{
+		if(!session_id())session_start();
+	}
+	/**
+	* Destroy the session, this removes any data saved in the session
+	*/
+
+	public function destroy_playlist_session()
+	{
+		session_destroy ();
+	}
 }

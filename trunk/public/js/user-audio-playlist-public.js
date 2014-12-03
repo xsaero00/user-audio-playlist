@@ -32,7 +32,7 @@
 	$(function() {
 
 		$(user_audio_playlist.link_selector).on('click', function(){
-			$.post(user_audio_playlist.ajax_url, $(this).data(), function(data){
+			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
 				console.log('Received');
 				console.log(data);
 			}, 'json')
