@@ -174,6 +174,12 @@ class User_Audio_Playlist {
 		// add audio short code post processing
 		$this->loader->add_filter( 'wp_audio_shortcode', $plugin_public, 'render_add_to_playlist_link', 10, 5);
 
+		// register user playlist widget
+		$this->loader->add_action( 'widgets_init', $plugin_public, 'register_user_audio_playlist_widget' );
+
+
+
+
 
 	}
 

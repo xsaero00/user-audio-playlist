@@ -133,4 +133,13 @@ class User_Audio_Playlist_Public {
 		return $html."<!-- Add to playlist -->".$link_html;
 	}
 
+	/**
+	* Register user playlist widget
+	*/
+	public function register_user_audio_playlist_widget()
+	{
+		require_once plugin_dir_path( __FILE__  ) . 'user-audio-playlist-widget.php';
+		register_widget( 'User_Audio_Playlist_Widget' );
+	}
+
 }
