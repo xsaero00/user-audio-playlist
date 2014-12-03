@@ -54,7 +54,14 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 			{
 				echo "<ul>";
 				foreach ($list['items'] as $file) {
-					echo "<li>$file</li>";
+					echo <<<END
+						<audio class="wp-audio-shortcode" id="" preload="none"
+					        style="width: 100%; visibility: hidden;" controls="controls">
+					        <source type="audio/mpeg" src="$file?_=1"/>
+					        <a href="$file">$file</a>
+					    </audio>
+					    <hr/>
+END;
 				}
 				echo "</ul>";
 			}
