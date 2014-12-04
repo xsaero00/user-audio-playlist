@@ -2,12 +2,12 @@
 
 /**
  *
- * Class resposible for managing playlists
+ * Class resposible for managing a playlist
  *
  */
-
 class Playlist
 {
+
 
 	public function __construct($user_audio_playlist, $playlist_slug, $playlist_title='')
 	{
@@ -18,7 +18,14 @@ class Playlist
 		$this->load();
 	}
 
+	public function __destruct() 
+	{
+		$this->save();
+	}
 
+    /**
+    * Add an item to playlist
+    */
 	public function add($item)
 	{
 		if($this->exists($item))
@@ -26,42 +33,59 @@ class Playlist
 		$this->items[$this->item_key($item)]=$item;
 	}
 
+	/**
+	* Check if item exists in playlist
+	*/
 	public function exists($item)
 	{
 		return isset($this->items[$this->item_key($item)]);
 	}
 
+	/**
+	* Remove an item from the playlist
+	*/
 	public function remove($item)
 	{
 		unset($this->items[$this->item_key($item)])
 	}
 
+	/**
+	* Remove all items from playlist
+	*/
 	public function remove_all()
 	{
 		$this->items = array();
 	}
 
+	/**
+	* Move an item to selected position in playlist
+	*/
 	public function move_to_position($item, $position)
 	{
+		// make sure requested position is valid
 		if ($position < 0) return;
 		if ($position >= count($this->items)) return;
+		// make sure item in the playlist already
 		if (!$this->exists($item)) return;
 
-		$item_key = $this->item_key($item);
-		$index = 0;
-		$items = $this->items;
+		$item_key = $this->item_key($item);		
+		$items = $this->items; 
 		$this->remove_all();
+		$index = 0;
 
 		foreach ($items as $key => $value) {
 			if($index == $position)
 				$this->add($item);
 			if($key != $item_key)
-				$this->add($value)
+				$this->add($value);
 			$index++;
 		}
 
 	}
 
+	/**
+	* Render playlist
+	*/
 	public function render_as_html()
 	{
 		echo "<div class='".$this->user_audio_playlist."' id='playlist-".$this->playlist_slug."'>";
@@ -99,7 +123,7 @@ END;
 		if (!isset($_SESSION[$this->user_audio_playlist][$playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$playlist_slug]))
 			$data = $_SESSION[$this->user_audio_playlist][$playlist_slug];
 		// load items
-		if(isset($data['items']) && is_array($data['items`']))
+		if(isset($data['items']) && is_array($data['items']))
 			$this->items=$data['items'];
 		// load title
 		if(!$this->playlist_title && isset($data['title']))
@@ -107,15 +131,14 @@ END;
 
 	}
 
+	/**
+	* Save data to storage
+	*/
 	private function save()
 	{
 		$_SESSION[$this->user_audio_playlist][$playlist_slug] = array('title'=>$this->playlist_title, 'items'=>$this->items);
 	}
 
-	public function __destruct() 
-	{
-		$this->save();
-	}
 }
 
 
