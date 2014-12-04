@@ -46,7 +46,7 @@ class Playlist
 	*/
 	public function remove($item)
 	{
-		unset($this->items[$this->item_key($item)])
+		unset($this->items[$this->item_key($item)]);
 	}
 
 	/**
@@ -147,5 +147,4 @@ END;
 	}
 
 }
-
 
