@@ -75,11 +75,18 @@ class Playlist
 
 		foreach ($items as $key => $value) {
 			if($index == $position)
+			{
 				$this->add($item);
+				$index++;
+			}
 			if($key != $item_key)
+			{
 				$this->add($value);
-			$index++;
+				$index++;
+			}
 		}
+		if($index == $position)
+			$this->add($item);
 
 	}
 
