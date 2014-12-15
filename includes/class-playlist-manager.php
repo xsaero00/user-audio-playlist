@@ -136,26 +136,7 @@ class Playlist_Manager
 	 */
 	public function as_html()
 	{
-		echo "<div class='".UAP_SLUG."' id='playlist-".$this->playlist_slug."'>";
-		echo "<h4 class='user_audio_playlist-title'>".$this->playlist_title."</h4>";
-		if(empty($this->items))
-			echo "<p>".__('Playlist is empty.')."</p>";
-		else
-		{
-			echo "<ul>";
-			foreach ($this->items as $item) {
-				echo <<<END
-					<audio class="wp-audio-shortcode" id="" preload="none"
-				        style="width: 100%; visibility: hidden;" controls="controls">
-				        <source type="audio/mpeg" src="$item?_=1"/>
-				        <a href="$item">$item</a>
-				    </audio>
-				    <hr/>
-END;
-			}
-			echo "</ul>";
-		}
-		echo "<div/>";
+		
 	}
 
 }

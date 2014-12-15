@@ -39,7 +39,28 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 		}
 		
 		$playlist = new Playlist_Manager(UAP_PLAYLIST_SLUG);
-		$playlist->as_html();
+		$parray = $playlist -> as_array();
+		
+		echo "<div class='".UAP_SLUG."' id='playlist-".$parray['slug']."'>";
+		echo "<h4 class='user_audio_playlist-title'>".$parray['title']."</h4>";
+		if(empty($parray['items']))
+			echo "<p>".__('Playlist is empty.')."</p>";
+		else
+		{
+			echo "<ul>";
+			foreach ($parray['items'] as $item) {
+				echo <<<END
+					<audio class="wp-audio-shortcode" id="" preload="none"
+				        style="width: 100%; visibility: hidden;" controls="controls">
+				        <source type="audio/mpeg" src="$item?_=1"/>
+				        <a href="$item">$item</a>
+				    </audio>
+				    <hr/>
+END;
+			}
+			echo "</ul>";
+		}
+		echo "<div/>";
 		
 		echo $args['after_widget'];
 	}
