@@ -90,10 +90,48 @@ class Playlist_Manager
 
 	}
 
+	private function item_key($item)
+	{
+		return md5($item);
+	}
+
 	/**
-	* Render playlist
+	*	Load data from storage
 	*/
-	public function render_as_html()
+	private function load()
+	{
+		if (!isset($_SESSION[$this->user_audio_playlist][$this->playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$this->playlist_slug]))
+			$data = $_SESSION[$this->user_audio_playlist][$this->playlist_slug];
+		// load items
+		if(isset($data['items']) && is_array($data['items']))
+			$this->items=$data['items'];
+		// load title
+		if(!$this->playlist_title && isset($data['title']))
+			$this->playlist_title = $data['title'];
+
+	}
+
+	/**
+	* Save data to storage
+	*/
+	private function save()
+	{
+		$_SESSION[$this->user_audio_playlist][$this->playlist_slug] = array('title'=>$this->playlist_title, 'items'=>$this->items);
+	}
+	
+	/**
+	 * Return playlist as PHP array
+	 * @return array representation
+	 */
+	public function as_array()
+	{
+		return array('slug'=>$this->playlist_slug, 'title'=>$this->playlist_title, 'items'=>$this->items );
+	}
+	
+	/**
+	 * Return playlist as rendered HTML
+	 */
+	public function as_html()
 	{
 		echo "<div class='".$this->user_audio_playlist."' id='playlist-".$this->playlist_slug."'>";
 		echo "<h4 class='user_audio_playlist-title'>".$this->playlist_title."</h4>";
@@ -115,35 +153,6 @@ END;
 			echo "</ul>";
 		}
 		echo "<div/>";
-	}
-
-	private function item_key($item)
-	{
-		return md5($item);
-	}
-
-	/**
-	*	Load data from storage
-	*/
-	private function load()
-	{
-		if (!isset($_SESSION[$this->user_audio_playlist][$playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$playlist_slug]))
-			$data = $_SESSION[$this->user_audio_playlist][$playlist_slug];
-		// load items
-		if(isset($data['items']) && is_array($data['items']))
-			$this->items=$data['items'];
-		// load title
-		if(!$this->playlist_title && isset($data['title']))
-			$this->playlist_title = $data['title'];
-
-	}
-
-	/**
-	* Save data to storage
-	*/
-	private function save()
-	{
-		$_SESSION[$this->user_audio_playlist][$playlist_slug] = array('title'=>$this->playlist_title, 'items'=>$this->items);
 	}
 
 }
