@@ -100,7 +100,11 @@ class Playlist_Manager
 	*/
 	private function load()
 	{
-		if (!isset($_SESSION[$this->user_audio_playlist][$this->playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$this->playlist_slug]))
+		// make sure there is something to load before starting to
+		if (!isset($_SESSION[$this->user_audio_playlist]))
+			return;
+		
+		if (isset($_SESSION[$this->user_audio_playlist][$this->playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$this->playlist_slug]))
 			$data = $_SESSION[$this->user_audio_playlist][$this->playlist_slug];
 		// load items
 		if(isset($data['items']) && is_array($data['items']))
