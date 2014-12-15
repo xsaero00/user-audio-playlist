@@ -30,13 +30,22 @@
 	 */
 
 	$(function() {
-
-		$(user_audio_playlist.link_selector).on('click', function(){
+		/* Action to add items to playlist(s) */
+		$(user_audio_playlist.add_link_selector).on('click', function(){
 			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
-				console.log('Received');
+				console.log('Add callback');
+				console.log(data);
+			}, 'json')
+		});
+		
+		/* Action to remove items from playlist(s) */
+		$(user_audio_playlist.remove_link_selector).on('click', function(){
+			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
+				console.log('Remove callback');
 				console.log(data);
 			}, 'json')
 		})
+		
 	});
 
 })( jQuery );

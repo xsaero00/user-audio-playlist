@@ -51,10 +51,12 @@ class User_Audio_Playlist_Public {
 
 		$this->user_audio_playlist = $user_audio_playlist;
 		$this->version = $version;
-		$this->link_class = 'add-to-playlist';
+		$this->add_link_class = 'add-to-playlist';
+		$this->remove_link_class = 'remove-from-playlist';
 		$this->link_text = __("Add to playlist +");
 		$this->default_playlist_title = __("My First Playlist");
 		$this->add_action = 'add_to_playlist'; // add to playlist action
+		$this->remove_action = 'remove_from_playlist'; // remove from playlist action
 
 	}
 
@@ -102,7 +104,9 @@ class User_Audio_Playlist_Public {
 
 		wp_enqueue_script( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'js/user-audio-playlist-public.js', array( 'jquery' ), $this->version, false );
 		// make some variables avaialble to JavaScript
-		wp_localize_script($this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'link_selector' => '.'.$this->link_class)); 
+		wp_localize_script($this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 
+																						  'add_link_selector' => '.'.$this->add_link_class,
+																						  'remove_link_selector' => '.'.$this->remove_link_class)); 
 
 	}
 
@@ -114,7 +118,7 @@ class User_Audio_Playlist_Public {
 		$defaults_atts = array(
 			'src'      => '',
 			'pltext'=>$this->link_text,
-			'plclass'=>$this->link_class,
+			'plclass'=>$this->add_link_class,
 			'pltitle'=>$this->default_playlist_title,
 			'action'=>$this->add_action, 			
 		);
@@ -162,7 +166,7 @@ class User_Audio_Playlist_Public {
 		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
 		$playlist_slug = sanitize_title( $playlist_title);
 		
-		$manager = new Playlist_Manager(UAP_PLAYLIST_SLUG, $playlist_title);
+		$manager = new Playlist_Manager($playlist_slug, $playlist_title);
 		
 		
 
@@ -178,11 +182,44 @@ class User_Audio_Playlist_Public {
         }
 		
 		if(!$playlist_item)
-		wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"), $this->user_audio_playlist=>$manager->as_array()));
+			wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"), $this->user_audio_playlist=>$manager->as_array()));
 
 		if(!$manager->add($playlist_item))
 			wp_send_json_error( array('message' =>__("Could not add to playlist: This file is already added to this playlist!"),$this->user_audio_playlist=>$manager->as_array()));
 
+		
+		wp_send_json_success(array($this->user_audio_playlist=>$manager->as_array()));
+	}
+	
+	/**
+	 * Remove from playlist AJAX callback
+	 */
+	public function ajax_remove_from_playlist_callback()
+	{
+		if(empty($_POST))
+			wp_send_json_error();
+		
+		// playlist title and slug
+		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
+		$playlist_slug = sanitize_title( $playlist_title);
+		
+		$manager = new Playlist_Manager($playlist_slug);
+		
+		$playlist_item = NULL;
+		
+		if(isset($_POST['plitemkey']))
+			$playlist_item = $_POST['plitemkey'];
+		
+		else if(isset($_POST['plitem']))
+			$playlist_item = $_POST['plitem'];
+		
+		if(!$playlist_item)
+			wp_send_json_error( array( 'message'=>__("Could remove from playlist: No item!"), $this->user_audio_playlist=>$manager->as_array()));
+		
+		
+		
+		$manager->remove($playlist_item);
+		
 		
 		wp_send_json_success(array($this->user_audio_playlist=>$manager->as_array()));
 	}

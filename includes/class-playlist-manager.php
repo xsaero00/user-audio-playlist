@@ -43,9 +43,10 @@ class Playlist_Manager
 	/**
 	* Remove an item from the playlist
 	*/
-	public function remove($item)
+	public function remove($item_or_key)
 	{
-		unset($this->items[$this->item_key($item)]);
+		unset($this->items[$item_or_key]);
+		unset($this->items[$this->item_key($item_or_key)]);
 	}
 
 	/**

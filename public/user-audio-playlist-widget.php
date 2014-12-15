@@ -48,13 +48,17 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 		else
 		{
 			echo "<ul>";
-			foreach ($parray['items'] as $item) {
+			//TODO: Use common values for class and data action in remove link
+			//TODO: Sanitize attributes, etc
+			foreach ($parray['items'] as $key => $item) {
 				echo <<<END
 					<audio class="wp-audio-shortcode" id="" preload="none"
 				        style="width: 100%; visibility: hidden;" controls="controls">
 				        <source type="audio/mpeg" src="$item?_=1"/>
 				        <a href="$item">$item</a>
 				    </audio>
+				    &nbsp;
+				    <a href="#" class="remove-from-playlist" data-plitemkey="$key" data-plitem="$item" data-action="remove_from_playlist" data-pltitle="{$parray['title']}">remove</a>
 				    <hr/>
 END;
 			}

@@ -178,8 +178,11 @@ class User_Audio_Playlist {
 		$this->loader->add_action( 'widgets_init', $plugin_public, 'register_user_audio_playlist_widget' );
 
 		// add ajax action callback
+		//TODO: Use common action names variables/constants
 		$this->loader->add_action( 'wp_ajax_add_to_playlist', $plugin_public, 'ajax_add_to_playlist_callback');
 		$this->loader->add_action( 'wp_ajax_nopriv_add_to_playlist', $plugin_public, 'ajax_add_to_playlist_callback');
+		$this->loader->add_action( 'wp_ajax_remove_from_playlist', $plugin_public, 'ajax_remove_from_playlist_callback');
+		$this->loader->add_action( 'wp_ajax_nopriv_remove_from_playlist', $plugin_public, 'ajax_remove_from_playlist_callback');
 
 		// add calls to start and destroy session
 		$this->loader->add_action( 'init', $plugin_public, 'start_playlist_session');
