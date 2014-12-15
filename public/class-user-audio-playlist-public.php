@@ -157,13 +157,14 @@ class User_Audio_Playlist_Public {
 	{
 		if(empty($_POST))
 			wp_send_json_error();
-
-		// TODO: Move saving code to dedicated class
-		if(!isset($_SESSION[$this->user_audio_playlist]))
-		 	$_SESSION[$this->user_audio_playlist] = [];
 		
+		// playlist title and slug
 		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
 		$playlist_slug = sanitize_title( $playlist_title);
+		
+		$manager = new Playlist_Manager($this->user_audio_playlist, $playlist_slug, $playlist_title);
+		
+		
 
 		// get the item to add to playlist
 		$playlist_item = Null;
@@ -177,21 +178,13 @@ class User_Audio_Playlist_Public {
         }
 		
 		if(!$playlist_item)
-			wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"),$this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]) );
+		wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"), $this->user_audio_playlist=>$manager->as_array()));
 
-		// initialize storage location if it has not been used yet
-		if (!isset($_SESSION[$this->user_audio_playlist][$playlist_slug]))
-			$_SESSION[$this->user_audio_playlist][$playlist_slug]=array('title'=>$playlist_title, 'items'=>array());
-
-		// check to make sure item has not been added already
-		if (in_array($playlist_item, $_SESSION[$this->user_audio_playlist][$playlist_slug]['items']))
-			wp_send_json_error(array('message' =>__("Could not add to playlist: This file is already added to this playlist!"),$this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]));
-
-		// if made it to here - add item
-		$_SESSION[$this->user_audio_playlist][$playlist_slug]['items'][] = $playlist_item;
+		if(!$manager->add($playlist_item))
+			wp_send_json_error( array('message' =>__("Could not add to playlist: This file is already added to this playlist!"),$this->user_audio_playlist=>$manager->as_array()));
 
 		
-		wp_send_json_success(array($this->user_audio_playlist=>$_SESSION[$this->user_audio_playlist]));
+		wp_send_json_success(array($this->user_audio_playlist=>$manager->as_array()));
 	}
 
 
