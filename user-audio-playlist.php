@@ -52,6 +52,29 @@ register_activation_hook( __FILE__, 'activate_user_audio_playlist' );
 register_deactivation_hook( __FILE__, 'deactivate_user_audio_playlist' );
 
 /**
+ * Autoloader callback.
+ *
+ * Converts a class name to a file path and requires it if it exists.
+ *
+ * @since 1.0.0
+ *
+ * @param string $class Class name.
+ */
+function autoload_playlist_class( $class ) {
+
+	$file  = dirname( __FILE__ );
+	$file .= ( false === strpos( $class, 'Admin' ) ) ? '/includes/' : '/admin/includes/';
+	$file .= 'class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
+
+	if ( file_exists( $file ) ) {
+		require_once( $file );
+	}
+}
+spl_autoload_register( 'autoload_playlist_class' );
+
+
+
+/**
  * The core plugin class that is used to define internationalization,
  * dashboard-specific hooks, and public-facing site hooks.
  */
@@ -73,3 +96,4 @@ function run_user_audio_playlist() {
 
 }
 run_user_audio_playlist();
+
