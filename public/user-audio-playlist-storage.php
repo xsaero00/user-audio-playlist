@@ -5,7 +5,7 @@
  * Class resposible for managing a playlist
  *
  */
-class Playlist
+class Playlist_Manager
 {
 
 
