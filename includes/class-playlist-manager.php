@@ -9,9 +9,8 @@ class Playlist_Manager
 {
 
 
-	public function __construct($user_audio_playlist, $playlist_slug, $playlist_title='')
+	public function __construct($playlist_slug, $playlist_title='')
 	{
-		$this->user_audio_playlist=$user_audio_playlist;
 		$this->playlist_slug=$playlist_slug;
 		$this->playlist_title=$playlist_title;
 		$this->items=array();
@@ -101,11 +100,11 @@ class Playlist_Manager
 	private function load()
 	{
 		// make sure there is something to load before starting to
-		if (!isset($_SESSION[$this->user_audio_playlist]))
+		if (!isset($_SESSION[UAP_SLUG]))
 			return;
 		
-		if (isset($_SESSION[$this->user_audio_playlist][$this->playlist_slug]) && is_array($_SESSION[$this->user_audio_playlist][$this->playlist_slug]))
-			$data = $_SESSION[$this->user_audio_playlist][$this->playlist_slug];
+		if (isset($_SESSION[UAP_SLUG][$this->playlist_slug]) && is_array($_SESSION[UAP_SLUG][$this->playlist_slug]))
+			$data = $_SESSION[UAP_SLUG][$this->playlist_slug];
 		// load items
 		if(isset($data['items']) && is_array($data['items']))
 			$this->items=$data['items'];
@@ -120,7 +119,7 @@ class Playlist_Manager
 	*/
 	private function save()
 	{
-		$_SESSION[$this->user_audio_playlist][$this->playlist_slug] = array('title'=>$this->playlist_title, 'items'=>$this->items);
+		$_SESSION[UAP_SLUG][$this->playlist_slug] = array('title'=>$this->playlist_title, 'items'=>$this->items);
 	}
 	
 	/**
@@ -137,7 +136,7 @@ class Playlist_Manager
 	 */
 	public function as_html()
 	{
-		echo "<div class='".$this->user_audio_playlist."' id='playlist-".$this->playlist_slug."'>";
+		echo "<div class='".UAP_SLUG."' id='playlist-".$this->playlist_slug."'>";
 		echo "<h4 class='user_audio_playlist-title'>".$this->playlist_title."</h4>";
 		if(empty($this->items))
 			echo "<p>".__('Playlist is empty.')."</p>";

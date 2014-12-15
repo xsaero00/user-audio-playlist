@@ -162,7 +162,7 @@ class User_Audio_Playlist_Public {
 		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
 		$playlist_slug = sanitize_title( $playlist_title);
 		
-		$manager = new Playlist_Manager($this->user_audio_playlist, $playlist_slug, $playlist_title);
+		$manager = new Playlist_Manager(UAP_PLAYLIST_SLUG, $playlist_title);
 		
 		
 

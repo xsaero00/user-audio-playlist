@@ -30,6 +30,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+//define some needed constants
+define( 'UAP_SLUG', 'user_audio_playlist' );
+define( 'UAP_PLAYLIST_SLUG', 'my-first-playlist');
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-user-audio-playlist-activator.php
