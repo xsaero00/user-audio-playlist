@@ -92,7 +92,7 @@ class Playlist_Manager
 
 	private function item_key($item)
 	{
-		return md5($item);
+		return md5(serialize($item));
 	}
 
 	/**

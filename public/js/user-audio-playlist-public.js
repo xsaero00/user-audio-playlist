@@ -30,6 +30,9 @@
 	 */
 
 	$(function() {
+		/* Add remove links to playlist */
+		$(user_audio_playlist.playlist_widget_selector).find('.wp-playlist-item-length').append('<a href="#" class="remove-from-playlist" data-plitemkey="" data-action="remove_from_playlist" data-pltitle=""> x</a>');
+		
 		/* Action to add items to playlist(s) */
 		$(user_audio_playlist.add_link_selector).on('click', function(){
 			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
@@ -47,5 +50,7 @@
 		})
 		
 	});
+	
+	
 
 })( jQuery );

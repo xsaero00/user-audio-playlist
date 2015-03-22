@@ -33,7 +33,7 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
-		$this->widget_simple($args, $instance);
+		$this->widget_worpress_playlist($args, $instance);
 	}
 	
 	/**
@@ -64,14 +64,15 @@ class User_Audio_Playlist_Widget extends WP_Widget {
 			//TODO: Use common values for class and data action in remove link
 			//TODO: Sanitize attributes, etc
 			foreach ($parray['items'] as $key => $item) {
+				// assume 'mp3'
 				echo <<<END
 					<audio class="wp-audio-shortcode" id="" preload="none"
 				        style="width: 100%; visibility: hidden;" controls="controls">
-				        <source type="audio/mpeg" src="$item?_=1"/>
-				        <a href="$item">$item</a>
+				        <source type="audio/mpeg" src="{$item['mp3']}?_=1"/>
+				        <a href="{$item['mp3']}">{$item['mp3']}</a>
 				    </audio>
 				    &nbsp;
-				    <a href="#" class="remove-from-playlist" data-plitemkey="$key" data-plitem="$item" data-action="remove_from_playlist" data-pltitle="{$parray['title']}">remove</a>
+				    <a href="#" class="remove-from-playlist" data-plitemkey="$key" data-action="remove_from_playlist" data-pltitle="{$parray['title']}">remove</a>
 				    <hr/>
 END;
 			}
@@ -81,6 +82,42 @@ END;
 		
 		echo $args['after_widget'];
 	}
+	
+	/**
+	 * Wordpress playlist widget display
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
+	public function widget_worpress_playlist( $args, $instance ) {
+	
+		echo $args['before_widget'];
+		if ( ! empty( $instance['title'] ) ) {
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ). $args['after_title'];
+		}
+	
+		$playlist = new Playlist_Manager(UAP_PLAYLIST_SLUG);
+		$parray = $playlist -> as_array();
+	
+		echo "<div class='".UAP_SLUG."' id='playlist-".$parray['slug']."'>";
+		echo "<h4 class='user_audio_playlist-title'>".$parray['title']."</h4>";
+		if(empty($parray['items']))
+			echo "<p>".__('Playlist is empty.')."</p>";
+		else
+		{
+			$ids = array_values(array_map(function ($i) {return $i['id'];}, $parray['items']));
+			// Show wordpress playlist
+			echo wp_playlist_shortcode( array(
+				'ids' => $ids
+			) );
+		}
+			echo "<div/>";
+	
+			echo $args['after_widget'];
+		}
+		
 	
 	/**
 	 * Cue playlist widget display

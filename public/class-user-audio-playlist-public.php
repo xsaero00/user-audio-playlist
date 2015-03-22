@@ -57,6 +57,7 @@ class User_Audio_Playlist_Public {
 		$this->default_playlist_title = __("My First Playlist");
 		$this->add_action = 'add_to_playlist'; // add to playlist action
 		$this->remove_action = 'remove_from_playlist'; // remove from playlist action
+		$this->attr_storage = array(); // temporary holding place for shortcode attributes
 
 	}
 
@@ -106,8 +107,48 @@ class User_Audio_Playlist_Public {
 		// make some variables avaialble to JavaScript
 		wp_localize_script($this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 
 																						  'add_link_selector' => '.'.$this->add_link_class,
-																						  'remove_link_selector' => '.'.$this->remove_link_class)); 
+																						  'remove_link_selector' => '.'.$this->remove_link_class,
+																						  'playlist_widget_selector' => '.'.UAP_SLUG)); 
 
+	}
+	
+	/**
+	 * Filter the HTML markup for a media item sent to the editor.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @see wp_get_attachment_metadata()
+	 *
+	 * @param string $html       HTML markup for a media item sent to the editor.
+	 * @param int    $aid         Attachemnt id
+	 * @param array  $attachment Array of attachment metadata.
+	 */
+	public function add_id_attribute_to_audio_shortcode($html, $aid, $attachment )
+	{
+		// if this is an audio shortcode, add id attribute
+		$pos = strpos($html, '[audio');
+		if ($pos === 0 && $aid)
+			$html = "[audio id=\"$aid\"" . substr($html, 6);
+		
+		return $html;
+	}
+	
+	/**
+	 * Filter the default audio shortcode output.
+	 *
+	 * If the filtered output isn't empty, it will be used instead of generating the default audio template.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param string $html      Empty variable to be replaced with shortcode markup.
+	 * @param array  $attr      Attributes of the shortcode. @see wp_audio_shortcode()
+	 * @param string $content   Shortcode content.
+	 * @param int    $instances Unique numeric ID of this audio shortcode instance.
+	 */
+	public function record_audio_shortcode_attributes($html, $attr, $content, $instances)
+	{
+		array_push($this->attr_storage, $attr);
+		return '';
 	}
 
 	/**	
@@ -116,6 +157,7 @@ class User_Audio_Playlist_Public {
 	{
 		$default_types = wp_get_audio_extensions();
 		$defaults_atts = array(
+			'id' => '',
 			'src'      => '',
 			'pltext'=>$this->link_text,
 			'plclass'=>$this->add_link_class,
@@ -125,25 +167,38 @@ class User_Audio_Playlist_Public {
 		foreach ( $default_types as $type ) {
 			$defaults_atts[$type] = '';
 		}
-		$atts = shortcode_atts( $defaults_atts, $atts, 'audio' );
+		$original_atts = array_pop($this->attr_storage);
+		$atts = shortcode_atts( $defaults_atts, array_merge($original_atts, $atts), 'audio' );
 
 
-		$data = $data_atts = [];
-		foreach($atts as $k => $v)
-			if(!empty($v))
-				$data[$k] = $v;
+		$data = array_filter($atts, function ($v){return !empty($v);});
 		$data['postid'] = $post_id;		
+		$params['id'] = sprintf( 'pl-add-audio-%d', $post_id);
+		$params['class'] = esc_attr($atts['plclass']);
+
+// 		$link_html =  $this->render_add_link($atts['pltext'], $params, $data);
+// 		sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pltext'] );
+
+		return $html."<!-- Add to playlist -->".$this->render_add_link($atts['pltext'], $params, $data);
+	}
+	
+	private function render_add_link($link_text, $attrs=Null, $data=Null)
+	{
+		// define generic attributes
+		$attrs = wp_parse_args( $attrs, array( 'class' => $this->add_link_class ) );
+		// define data attributes
+		$data = wp_parse_args( $data, array() );
+		$data_attr = $html_atts = array();
+		foreach ($attrs as $k => $v) {
+			$html_atts[] = $k . '="' . esc_attr( $v ) . '"';
+		}
 		foreach ($data as $k => $v) {
 			$data_atts[] = 'data-'.$k . '="' . esc_attr( $v ) . '"';
 		}
-
-		$html_atts = array( 'id='.sprintf( 'pl-add-audio-%d', $post_id),
-							'class='.esc_attr($atts['plclass']));
-
-		$link_html = sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts ), join( ' ', $data_atts ), $atts['pltext'] );
-
-		return $html."<!-- Add to playlist -->".$link_html;
+		
+		return sprintf( '<a href="#" %s %s>%s</a>', join( ' ', $html_atts), join(' ', $data_atts), $link_text );
 	}
+	
 
 	/**
 	* Register user playlist widget
@@ -152,6 +207,32 @@ class User_Audio_Playlist_Public {
 	{
 		require_once plugin_dir_path( __FILE__  ) . 'user-audio-playlist-widget.php';
 		register_widget( 'User_Audio_Playlist_Widget' );
+	}
+	
+	/**
+	 * Add shortcode for adding music
+	 */
+	public function register_add_to_playlist_shortcode()
+	{
+		add_shortcode( 'uap', array($this, 'add_to_playlist_shortcode') );
+	}
+	
+	/**
+	 * Add to playlist shortcode. A way to add manual link to add something into playlist
+	 * @param unknown $attrs
+	 * @param unknown $link_text
+	 * @return string
+	 */
+	public function add_to_playlist_shortcode( $attrs, $link_text )
+	{
+		// TODO: Finish it
+		$attrs = shortcode_atts( array('ids'=>''), $attrs);
+		if(!$attrs['ids'])
+			return "Please define ids.";
+		if(!$link_text)
+			$link_text = $this->$this->link_text;
+		
+		return "<!-- Add to playlist -->".$this->render_add_link($link_text, $params, $data);
 	}
 
 	/**
@@ -168,24 +249,23 @@ class User_Audio_Playlist_Public {
 		
 		$manager = new Playlist_Manager($playlist_slug, $playlist_title);
 		
-		
-
 		// get the item to add to playlist
-		$playlist_item = Null;
-        $default_types = wp_get_audio_extensions();
-        foreach ($default_types as $type) {
-        	if(isset($_POST[$type]) && !empty($_POST[$type]))
-        	{
-        		$playlist_item = $_POST[$type];
-        		break;
-        	}
-        }
+		$default_types = wp_get_audio_extensions();
+		$defaults_atts = array(
+				'id' => '',
+				'postid'      => '',
+		);
+		foreach ( $default_types as $type ) {
+			$defaults_atts[$type] = '';
+		}
+
+		$playlist_item = shortcode_atts( $defaults_atts, $_POST);
 		
 		if(!$playlist_item)
 			wp_send_json_error( array( 'message'=>__("Could not add to playlist: No valid audio file!"), $this->user_audio_playlist=>$manager->as_array()));
 
 		if(!$manager->add($playlist_item))
-			wp_send_json_error( array('message' =>__("Could not add to playlist: This file is already added to this playlist!"),$this->user_audio_playlist=>$manager->as_array()));
+			wp_send_json_error( array('message' =>__("Could not add to playlist: This file is already added to this playlist!"), $this->user_audio_playlist=>$manager->as_array()));
 
 		
 		wp_send_json_success(array($this->user_audio_playlist=>$manager->as_array()));
