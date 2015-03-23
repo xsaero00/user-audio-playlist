@@ -102,10 +102,14 @@ class User_Audio_Playlist_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		wp_enqueue_script( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'js/user-audio-playlist-public.js', array( 'jquery' ), $this->version, false );
+		
+		// IE hack
+		?>
+				<!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+		<?php
+		wp_enqueue_script( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'js/user-audio-playlist-public.js', array( 'jquery',  'wp-util', 'backbone', 'mediaelement'  ), $this->version, false );
 		// make some variables avaialble to JavaScript
-		wp_localize_script($this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 
+		wp_localize_script( $this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 
 																						  'add_link_selector' => '.'.$this->add_link_class,
 																						  'remove_link_selector' => '.'.$this->remove_link_class,
 																						  'playlist_widget_selector' => '.'.UAP_SLUG)); 

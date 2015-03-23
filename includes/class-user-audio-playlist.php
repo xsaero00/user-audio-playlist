@@ -193,7 +193,6 @@ class User_Audio_Playlist {
 		$this->loader->add_action( 'wp_logout', $plugin_public, 'destroy_playlist_session');
 
 
-
 	}
 
 	/**
