@@ -201,8 +201,12 @@ video.uap-video-shortcode,
 .uap-playlist-item .uap-playlist-caption {
 	text-decoration: none;
 	color: #000;
-	max-width: -webkit-calc(100% - 40px);
-	max-width: calc(100% - 40px);
+	max-width: -webkit-calc(100% - 70px);
+	max-width: calc(100% - 70px);
+}
+
+.uap-playlist-item a{
+	text-decoration: none;
 }
 
 .uap-playlist-item-meta {
@@ -235,6 +239,12 @@ video.uap-video-shortcode,
 	font-size: 14px;
 	line-height: 1.5;
 }
+
+.uap-playlist-item-length span.dashicons{
+	width: 15px;
+	font-size: 15px;
+	line-height: 1.5;
+} 
 
 .rtl .uap-playlist-item-length {
 	left: 3px;

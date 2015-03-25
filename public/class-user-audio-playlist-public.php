@@ -53,6 +53,7 @@ class User_Audio_Playlist_Public {
 		$this->version = $version;
 		$this->add_link_class = 'add-to-playlist';
 		$this->remove_link_class = 'remove-from-playlist';
+		$this->download_link_class = 'download-from-playlist';
 		$this->link_text = __("Add to playlist +");
 		$this->default_playlist_title = __("My First Playlist");
 		$this->add_action = 'add_to_playlist'; // add to playlist action
@@ -80,7 +81,7 @@ class User_Audio_Playlist_Public {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'css/user-audio-playlist-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->user_audio_playlist, plugin_dir_url( __FILE__ ) . 'css/user-audio-playlist-public.css', array('mediaelement'), $this->version, 'all' );
 
 	}
 
@@ -112,6 +113,7 @@ class User_Audio_Playlist_Public {
 		wp_localize_script( $this->user_audio_playlist, $this->user_audio_playlist, array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 
 																						  'add_link_selector' => '.'.$this->add_link_class,
 																						  'remove_link_selector' => '.'.$this->remove_link_class,
+																						  'download_link_selector' => '.'.$this->download_link_class,
 																						  'playlist_widget_selector' => '.'.UAP_SLUG)); 
 
 	}

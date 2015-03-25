@@ -171,7 +171,7 @@ END;
 // 				        <a href="$item">$item</a>
 // 				    </audio>
 // 				    &nbsp;
-// 				    <a href="#" class="remove-from-playlist" data-plitemkey="$key" data-plitem="$item" data-action="remove_from_playlist" data-pltitle="{$parray['title']}">remove</a>
+// 				    <a href="#" class="remove-from-playlist" data-plitemkey="$key" data-plitem="$item" data-action="remove_from_playlist">remove</a>
 // 				    <hr/>
 // END;
 // 			}
@@ -250,7 +250,10 @@ function uap_underscore_playlist_templates() {
 			<# } #>
 		</a>
 		<# if ( data.meta.length_formatted ) { #>
-		<div class="uap-playlist-item-length">{{ data.meta.length_formatted }}</div>
+		<div class="uap-playlist-item-length">{{ data.meta.length_formatted }}
+			<a href="#" class="remove-from-playlist" data-plitemkey="{{ data.id }}" data-action="remove_from_playlist"><span class="dashicons dashicons-trash"></span></a>
+			<a href="{{ data.src }}" target="_blank" class="download-from-playlist" data-plitemkey="{{ data.id }}" data-action="download_from_playlist"><span class="dashicons dashicons-download"></span></a>
+		</div>
 		<# } #>
 	</div>
 </script>
@@ -392,7 +395,8 @@ function uap_playlist_shortcode( $attr ) {
 				'type' => $ftype['type'],
 				'title' => $attachment->post_title,
 				'caption' => $attachment->post_excerpt,
-				'description' => $attachment->post_content
+				'description' => $attachment->post_content,
+				'id' => $attachment->ID
 		);
 
 		$track['meta'] = array();

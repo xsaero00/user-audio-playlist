@@ -7,12 +7,14 @@
  */
 class Playlist_Manager
 {
+	
+ 	private $identifier;
 
-
-	public function __construct($playlist_slug, $playlist_title='')
+	public function __construct($playlist_slug, $playlist_title='', $identifier='id')
 	{
 		$this->playlist_slug=$playlist_slug;
 		$this->playlist_title=$playlist_title;
+		$this->identifier=$identifier;
 		$this->items=array();
 		$this->load();
 	}
@@ -92,6 +94,8 @@ class Playlist_Manager
 
 	private function item_key($item)
 	{
+ 		if (key_exists($this->identifier, $item))
+ 			return $item[$this->identifier];
 		return md5(serialize($item));
 	}
 

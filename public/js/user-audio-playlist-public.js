@@ -164,12 +164,6 @@
 		}
 	});
 
-    $(document).ready(function () {
-		$('.uap-playlist').each( function() {
-			return new WPPlaylistView({ el: this });
-		} );
-    });
-
 	window.WPPlaylistView = WPPlaylistView;
 
 }(jQuery, _, Backbone));
@@ -207,8 +201,13 @@
 	 */
 
 	$(function() {
-		/* Add remove links to playlist */
-		$(user_audio_playlist.playlist_widget_selector).find('.wp-playlist-item-length').append('<a href="#" class="remove-from-playlist" data-plitemkey="" data-action="remove_from_playlist" data-pltitle=""> x</a>');
+		
+		
+		$('.uap-playlist').each( function() {
+			return new window.WPPlaylistView({ el: this });
+		} );
+		
+		
 		
 		/* Action to add items to playlist(s) */
 		$(user_audio_playlist.add_link_selector).on('click', function(){
@@ -219,9 +218,19 @@
 		});
 		
 		/* Action to remove items from playlist(s) */
-		$(user_audio_playlist.remove_link_selector).on('click', function(){
+		$(user_audio_playlist.remove_link_selector).on('click', function(event){
+			event.stopPropagation()
 			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
 				console.log('Remove callback');
+				console.log(data);
+			}, 'json')
+		})
+		
+		/* Action to remove items from playlist(s) */
+		$(user_audio_playlist.download_link_selector).on('click', function(event){
+			event.stopPropagation()
+			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
+				console.log('Download callback');
 				console.log(data);
 			}, 'json')
 		})
