@@ -2,8 +2,37 @@
 
 (function ($, _, Backbone) {
 	"use strict";
+	
+	var UAPTrack = Backbone.Model.extend({
+		  defaults: {
+			  caption: null,
+			  description: null,
+			  id: null,
+			  image: { 	height: null,
+				  		src: null,
+				  		width: null },
+			  meta: {	album: null,
+				  		artist: null,
+				  		length_formatted: null,
+				  		year: null },
+			  src: null,
+			  thumb: {	height: null,
+				  		src: null,
+				  		width: null	},
+			  title: null,
+			  type: null
+		  }
+		});
+	
+	var UAPTrackList = Backbone.Collection.extend({
+		  url: user_audio_playlist.ajax_url+'?action=retrieve_playlist',
+		  model: UAPTrack,
+		  parse: function(data) {
+		    return data.tracks;
+		  }
+		});
 
-	var WPPlaylistView = Backbone.View.extend({
+	var UAPPlaylistView = Backbone.View.extend({
 		initialize : function (options) {
 			this.index = 0;
 			this.settings = {};
@@ -164,7 +193,8 @@
 		}
 	});
 
-	window.WPPlaylistView = WPPlaylistView;
+	window.UAPPlaylistView = UAPPlaylistView;
+	window.UAPTrackList = UAPTrackList;
 
 }(jQuery, _, Backbone));
 
@@ -204,7 +234,7 @@
 		
 		
 		$('.uap-playlist').each( function() {
-			return new window.WPPlaylistView({ el: this });
+			return new window.UAPPlaylistView({ el: this });
 		} );
 		
 		

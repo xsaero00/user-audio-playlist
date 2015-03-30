@@ -309,6 +309,23 @@ class User_Audio_Playlist_Public {
 		
 		wp_send_json_success(array($this->user_audio_playlist=>$manager->as_array()));
 	}
+	
+	public function ajax_retrieve_playlist_callback()
+	{
+		// playlist title and slug
+		$playlist_title = ( isset($_POST['pltitle'])?$_POST['pltitle']:$this->default_playlist_title );
+		$playlist_slug = sanitize_title( $playlist_title);
+	
+		$manager = new Playlist_Manager($playlist_slug);
+		
+		$parray = $manager->as_array();
+		$ids = array_values(array_map(function ($i) {return $i['id'];}, $parray['items']));
+		$data = uap_playlist_data(array(
+				'ids' => $ids
+		) ) ;
+	
+		wp_send_json($data);
+	}
 
 
 	/**

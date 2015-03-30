@@ -109,9 +109,9 @@ END;
 		{
 			$ids = array_values(array_map(function ($i) {return $i['id'];}, $parray['items']));
 			// Show wordpress playlist
-			echo uap_playlist_shortcode( array(
+			echo uap_playlist_shortcode( uap_playlist_data(array(
 				'ids' => $ids
-			) );
+			) ) );
 		}
 			echo "<div/>";
 	
@@ -260,6 +260,20 @@ function uap_underscore_playlist_templates() {
 <?php
 }
 
+function uap_playlist_dimensions()
+{
+	global $content_width;
+	
+	$outer = 22; // default padding and border of wrapper
+	
+	$default_width = 640;
+	$default_height = 360;
+	
+	$theme_width = empty( $content_width ) ? $default_width : ( $content_width - $outer );
+	$theme_height = empty( $content_width ) ? $default_height : round( ( $default_height * $theme_width ) / $default_width );
+	
+	return array($theme_width, $theme_height, $default_width, $default_height);
+}
 
 /**
  * The user audio playlist "shortcode".
@@ -295,12 +309,11 @@ function uap_underscore_playlist_templates() {
  *
  * @return string Playlist output. Empty string if the passed type is unsupported.
  */
-function uap_playlist_shortcode( $attr ) {
-	global $content_width;
+function uap_playlist_data( $attr ) {
+	
 	$post = get_post();
-
-	static $instance = 0;
-	$instance++;
+	list($theme_width, $theme_height, $default_width, $default_height) = uap_playlist_dimensions();
+	
 
 	if ( ! empty( $attr['ids'] ) ) {
 		// 'ids' is explicitly ordered, unless you specify otherwise.
@@ -357,28 +370,23 @@ function uap_playlist_shortcode( $attr ) {
 		$attachments = get_children( $args );
 	}
 
-	if ( empty( $attachments ) ) {
-		return '';
-	}
+// 	if ( empty( $attachments ) ) {
+// 		return '';
+// 	}
 
-	if ( is_feed() ) {
-		$output = "\n";
-		foreach ( $attachments as $att_id => $attachment ) {
-			$output .= wp_get_attachment_link( $att_id ) . "\n";
-		}
-		return $output;
-	}
+// 	if ( is_feed() ) {
+// 		$output = "\n";
+// 		foreach ( $attachments as $att_id => $attachment ) {
+// 			$output .= wp_get_attachment_link( $att_id ) . "\n";
+// 		}
+// 		return $output;
+// 	}
 
-	$outer = 22; // default padding and border of wrapper
-
-	$default_width = 640;
-	$default_height = 360;
-
-	$theme_width = empty( $content_width ) ? $default_width : ( $content_width - $outer );
-	$theme_height = empty( $content_width ) ? $default_height : round( ( $default_height * $theme_width ) / $default_width );
+	
 
 	$data = array(
 			'type' => $atts['type'],
+			'style' => $atts['style'],
 			// don't pass strings to JSON, will be truthy in JS
 			'tracklist' => wp_validate_boolean( $atts['tracklist'] ),
 			'tracknumbers' => wp_validate_boolean( $atts['tracknumbers'] ),
@@ -448,9 +456,17 @@ function uap_playlist_shortcode( $attr ) {
 		$tracks[] = $track;
 	}
 	$data['tracks'] = $tracks;
+	return $data;
+}
 
-	$safe_type = esc_attr( $atts['type'] );
-	$safe_style = esc_attr( $atts['style'] );
+function uap_playlist_shortcode($data)
+{
+	static $instance = 0;
+	$instance++;
+	list($theme_width, $theme_height, $default_width, $default_height) = uap_playlist_dimensions();
+	
+	$safe_type = esc_attr( $data['type'] );
+	$safe_style = esc_attr( $data['style'] );
 
 	ob_start();
 
@@ -463,10 +479,10 @@ function uap_playlist_shortcode( $attr ) {
 		 * @param string $type  Type of playlist. Possible values are 'audio' or 'video'.
 		 * @param string $style The 'theme' for the playlist. Core provides 'light' and 'dark'.
 		 */
-		do_action( 'uap_playlist_scripts', $atts['type'], $atts['style'] );
+		do_action( 'uap_playlist_scripts', $safe_type, $safe_style );
 	} ?>
 <div class="uap-playlist uap-<?php echo $safe_type ?>-playlist uap-playlist-<?php echo $safe_style ?>">
-	<?php if ( 'audio' === $atts['type'] ): ?>
+	<?php if ( 'audio' === $safe_type ): ?>
 	<div class="uap-playlist-current-item"></div>
 	<?php endif ?>
 	<<?php echo $safe_type ?> controls="controls" preload="none" width="<?php
@@ -480,8 +496,8 @@ function uap_playlist_shortcode( $attr ) {
 	<div class="uap-playlist-prev"></div>
 	<noscript>
 	<ol><?php
-	foreach ( $attachments as $att_id => $attachment ) {
-		printf( '<li>%s</li>', wp_get_attachment_link( $att_id ) );
+	foreach ( $data['tracks'] as $track ) {
+		printf( '<li>%s</li>', $track['src'] );
 	}
 	?></ol>
 	</noscript>
