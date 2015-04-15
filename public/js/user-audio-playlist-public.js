@@ -39,7 +39,7 @@
 			this.data = options.metadata || $.parseJSON( this.$('script.uap-playlist-script').html() );
 			this.playerNode = this.$( this.data.type );
 
-			this.tracks = new Backbone.Collection( this.data.tracks );
+			this.tracks = new UAPTrackList( this.data.tracks );
 			this.current = this.tracks.first();
 
 			if ( 'audio' === this.data.type ) {
@@ -57,6 +57,7 @@
 
 			this.playerNode.attr( 'src', this.current.get( 'src' ) );
 
+			// what is that for?
 			_.bindAll( this, 'bindPlayer', 'bindResetPlayer', 'setPlayer', 'ended', 'clickTrack' );
 
 			if ( ! _.isUndefined( window._wpmejsSettings ) ) {
@@ -64,6 +65,8 @@
 			}
 			this.settings.success = this.bindPlayer;
 			this.setPlayer();
+			
+			this.tracks.on('reset', this.redraw, this);
 		},
 
 		bindPlayer : function (mejs) {
@@ -130,7 +133,7 @@
 			});
 			this.$el.append( tracklist );
 
-			this.$( '.uap-playlist-item' ).eq(0).addClass( this.playingClass );
+			this.$( '.uap-playlist-item' ).eq(this.index).addClass( this.playingClass );
 		},
 
 		events : {
@@ -190,6 +193,18 @@
 			}
 
 			this.loadCurrent();
+		},
+		
+		reload : function () {
+			this.tracks.fetch({reset: true});
+		},
+		
+		redraw : function() {
+			this.player.pause();
+			this.$el.find('.uap-playlist-tracks').remove();
+			this.renderTracks();
+			this.index = 0;
+			this.setCurrent();
 		}
 	});
 
@@ -234,16 +249,20 @@
 		
 		
 		$('.uap-playlist').each( function() {
-			return new window.UAPPlaylistView({ el: this });
+			$(this).data('playlist', new window.UAPPlaylistView({ el: this }));
 		} );
 		
 		
 		
 		/* Action to add items to playlist(s) */
-		$(user_audio_playlist.add_link_selector).on('click', function(){
+		$(user_audio_playlist.add_link_selector).on('click', function(event){
+			event.stopPropagation()
 			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
 				console.log('Add callback');
 				console.log(data);
+				$('.uap-playlist').each( function() {
+					$(this).data('playlist').reload();
+				} );
 			}, 'json')
 		});
 		
@@ -253,6 +272,9 @@
 			$.post(user_audio_playlist.ajax_url, $.extend({},$(this).data(),{}), function(data){
 				console.log('Remove callback');
 				console.log(data);
+				$('.uap-playlist').each( function() {
+					$(this).data('playlist').reload();
+				} );
 			}, 'json')
 		})
 		
